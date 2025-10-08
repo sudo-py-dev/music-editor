@@ -3,7 +3,7 @@
         "language": "עברית 🇮🇱",
         "unauthorized_admin": "🚫 אין לך הרשאת {} בצ׳אט זה",
         "user_not_found": "🔍 המשתמש לא נמצא",
-        "start": "👋 ברוך הבא לבוט {}! שלח /help כדי לראות את כל הפקודות 📜",
+        "start": "👋 היי {} ברוך הבא לבוט העורך המוזיקלי ! 🎵\n\nאני בוט לעריכת קבצי אודיו עם מגוון תכונות מתקדמות. שלח /help כדי לראות את כל הפקודות הזמינות. 📜",
         "commands": {
             "start": "הפעלת הבוט",
             "help": "תפריט עזרה",
@@ -67,7 +67,7 @@
         "language": "English 🇺🇸",
         "unauthorized_admin": "🚫 You don’t have permission to {} in this chat",
         "user_not_found": "🔍 User not found",
-        "start": "👋 Welcome to {}! Send /help to see all available commands 📜",
+        "start": "👋 hello {}!\n\nWelcome to the Music Editor Bot! 🎵\n\nI'm a bot for editing audio files with advanced features. Send /help to see all available commands. 📜",
         "commands": {
             "start": "Start the bot",
             "help": "Show help menu",
@@ -130,7 +130,7 @@
         "language": "Français 🇫🇷",
         "unauthorized_admin": "🚫 Vous n’avez pas la permission de {} dans ce chat",
         "user_not_found": "🔍 Utilisateur introuvable",
-        "start": "👋 Bienvenue sur le bot {} ! Envoyez /help pour voir toutes les commandes 📜",
+        "start": "👋 Bienvenue sur le bot d'édition musicale {} ! 🎵\n\nJe suis un bot pour éditer des fichiers audio avec des fonctionnalités avancées. Envoyez /help pour voir toutes les commandes disponibles. 📜",
         "commands": {
             "start": "Démarrer le bot",
             "help": "Afficher le menu d’aide",

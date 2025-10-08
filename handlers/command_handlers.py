@@ -11,7 +11,7 @@ from tools.database import Chats
 
 @with_language
 async def start_handler(client: Client, message: Message, language: str):
-    await message.reply(Messages(language=language).start.format(client.me.full_name))
+    await message.reply(Messages(language=language).start.format(message.from_user.mention))
 
 
 @with_language
