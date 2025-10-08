@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 import os
 from handlers.command_handlers import commands_handlers
 from handlers.callback_handlers import callback_query_handlers
-from handlers.join_handlers import join_handlers
 from handlers.message_handlers import message_handlers
 from bot_management.bot_settings import bot_handlers
 from bot_management.callback_handlers import bot_settings_callback_handlers
@@ -41,11 +40,7 @@ for handler in bot_handlers:
 for handler in bot_settings_callback_handlers:
     app.add_handler(handler)
 
-# Join handlers
-for handler in join_handlers:
-    app.add_handler(handler)
-
-# Message Hanlers
+# Message handlers
 for handler in message_handlers:
     app.add_handler(handler)
 

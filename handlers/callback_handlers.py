@@ -131,6 +131,8 @@ async def audio_edit_handler(client: Client, callback_query: CallbackQuery, lang
                     )
                 
                 await callback_query.answer(messages.audio_processed_successfully)
+                AudioFiles.delete(user_id=user_id, audio_id=audio_id)
+                await callback_query.message.delete()
 
                 
             except Exception as e:
