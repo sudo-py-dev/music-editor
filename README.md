@@ -4,23 +4,22 @@
 
 ## ✨ תכונות עיקריות
 
-- ✂️ חיתוך קבצי אודיו (התחלה/סיום)
 - 🏷️ עריכת נתוני קובץ (כותרת, אמן, אלבום, ז'אנר)
 - 🖼️ הוספה ועדכון עטיפות לאלבומים
 - 📁 תמיכה בפורמטי אודיו נפוצים
 - 🌍 תמיכה במספר שפות
 - 🔒 בקרת הרשאות משתמשים
+- 🐳 הרצה קלה עם Docker
 
 ## 🚀 התחלה מהירה
 
 ### דרישות מערכת
 
-- Python 3.8+
-- pip (מנהל חבילות פייתון)
+- [Docker](https://docs.docker.com/get-docker/) ו-Docker Compose
 - טוקן בוט טלגרם מ-[@BotFather](https://t.me/botfather)
-- מזהה API והאש - [telegram](https://my.telegram.org/auth)
+- מזהה API והאש מ-[my.telegram.org](https://my.telegram.org/auth)
 
-### התקנה
+### התקנה עם Docker
 
 1. שכפול המאגר:
    ```bash
@@ -28,28 +27,52 @@
    cd music_editor
    ```
 
-2. יצירת סביבה וירטואלית והתקנת תלויות:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # ב-Windows: venv\Scripts\activate
-   pip install -r requirements.txt
-   ```
-
-3. הגדרת משתני סביבה:
+2. הגדרת משתני סביבה:
    - העתק את הקובץ `.env.example` ל-`.env`
    - עדכן את הקובץ `.env` עם הפרטים שלך:
      ```
-     BOT_TOKEN=your_telegram_bot_token
-     API_ID=your_telegram_api_id
-     API_HASH=your_telegram_api_hash
+     BOT_TOKEN=הטוקן_של_הבוט_שלך
+     API_ID=המזהה_שלך
+     API_HASH=האש_שלך
+     BOT_CLIENT_NAME=music_editor_bot
+     OWNER_ID=המזהה_האישי_שלך_בטלגרם
      ```
 
-### הרצת הבוט
+### הרצה עם Docker
 
-לאחר השלמת ההתקנה, הפעל את הבוט באמצעות:
+1. בניית תמורת הדוקר:
+   ```bash
+   docker build -t music-editor-bot .
+   ```
 
+2. הפעלת המיכל:
+   ```bash
+   docker run -d \
+     --name music-bot \
+     --restart unless-stopped \
+     --env-file .env \
+     music-editor-bot
+   ```
+
+### שימוש ב-Docker Compose (אופציונלי)
+
+יצירת קובץ `docker-compose.yml`:
+
+```yaml
+version: '3.8'
+
+services:
+  music-bot:
+    build: .
+    container_name: music-bot
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./data:/app/data  # אופציונלי: שמירת קבצים בצורה קבועה
+```
+לאחר מכן הרץ:
 ```bash
-python index.py
+docker-compose up -d
 ```
 
 הבוט אמור להציג הודעת התחלה ולענות להודעות בטלגרם.

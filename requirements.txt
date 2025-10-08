@@ -3,6 +3,5 @@ python-dotenv
 sqlalchemy
 tgcrypto
 tzdata
-rich
 pydub
 Pillow
