@@ -18,7 +18,7 @@
 - Python 3.8+
 - pip (מנהל חבילות פייתון)
 - טוקן בוט טלגרם מ-[@BotFather](https://t.me/botfather)
-- מזהה API וחש
+- מזהה API והאש - [telegram](https://my.telegram.org/auth)
 
 ### התקנה
 
