@@ -1,0 +1,54 @@
+{
+    "he": {
+      "can_manage_chat": "ניהול צ'אט ✨",
+      "can_delete_messages": "מחיקת הודעות 🗑️",
+      "can_delete_stories": "מחיקת סטורי 📖",
+      "can_manage_video_chats": "ניהול שיחות וידאו 🎥",
+      "can_restrict_members": "הגבלת חברים 🚫",
+      "can_promote_members": "קידום חברים ⬆️",
+      "can_change_info": "שינוי מידע על הקבוצה ℹ️",
+      "can_post_messages": "פרסום הודעות 📝",
+      "can_post_stories": "פירסום סטורי 📚",
+      "can_edit_messages": "עריכת הודעות 📝",
+      "can_edit_stories": "עריכת סטורי 📚",
+      "can_invite_users": "הזמנת משתמשים 💌",
+      "can_pin_messages": "נעיצת הודעות 📌",
+      "can_manage_topics": "ניהול נושאים 📋",
+      "is_anonymous": "אנונימי 🕶️"
+    },
+    "en": {
+      "can_manage_chat": "Manage Chat ✨",
+      "can_delete_messages": "Delete Messages 🗑️",
+      "can_delete_stories": "Delete Stories 📖",
+      "can_manage_video_chats": "Manage Video Chats 🎥",
+      "can_restrict_members": "Restrict Members 🚫",
+      "can_promote_members": "Promote Members ⬆️",
+      "can_change_info": "Change Group Info ℹ️",
+      "can_post_messages": "Post Messages 📝",
+      "can_post_stories": "Post Stories 📚",
+      "can_edit_messages": "Edit Messages 📝",
+      "can_edit_stories": "Edit Stories 📚",
+      "can_invite_users": "Invite Users 💌",
+      "can_pin_messages": "Pin Messages 📌",
+      "can_manage_topics": "Manage Topics 📋",
+      "is_anonymous": "Anonymous 🕶️"
+    },
+    "fr": {
+      "can_manage_chat": "Gérer le chat ✨",
+      "can_delete_messages": "Supprimer les messages 🗑️",
+      "can_delete_stories": "Supprimer les stories 📖",
+      "can_manage_video_chats": "Gérer les appels vidéo 🎥",
+      "can_restrict_members": "Restreindre les membres 🚫",
+      "can_promote_members": "Promouvoir les membres ⬆️",
+      "can_change_info": "Modifier les infos du groupe ℹ️",
+      "can_post_messages": "Publier des messages 📝",
+      "can_post_stories": "Publier des stories 📚",
+      "can_edit_messages": "Modifier les messages 📝",
+      "can_edit_stories": "Modifier les stories 📚",
+      "can_invite_users": "Inviter des utilisateurs 💌",
+      "can_pin_messages": "Épingler les messages 📌",
+      "can_manage_topics": "Gérer les sujets 📋",
+      "is_anonymous": "Anonyme 🕶️"
+    }
+  }
+  
