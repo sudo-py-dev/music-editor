@@ -1,0 +1,8 @@
+pyrotgfork
+python-dotenv
+sqlalchemy
+aiosqlite
+tgcrypto
+rich
+tzdata
+Pillow
