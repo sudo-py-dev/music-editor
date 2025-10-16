@@ -1,13 +1,17 @@
 import os
 from datetime import datetime, timedelta
 from tools.logger import logger
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, func, ForeignKey, select, update, delete
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, func, ForeignKey, select, update, delete, JSON
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from typing import Any, List, Dict, Optional
 import time
 from tools.enums import AccessPermission
+from pyrogram.errors import ChatAdminRequired, ChannelPrivate, PeerIdInvalid, RPCError, ChatInvalid
+from pyrogram import Client
+from pyrogram.types import ChatPrivileges
+from pyrogram.enums import ChatMembersFilter
 
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///my_bot.sqlite")
@@ -30,7 +34,6 @@ async_session = async_sessionmaker(
 
 Base = declarative_base()
 
-
 class Chats(Base):
     __tablename__ = 'chats'
     chat_id = Column(Integer, primary_key=True, index=True, unique=True)
@@ -44,6 +47,7 @@ class Chats(Base):
 
     # Control update of admins permissions
     last_admins_update = Column(DateTime, nullable=True)
+    chat_permissions = Column(JSON, nullable=True)
 
     # Relationship with AdminsPermissions
     admins_permissions = relationship("AdminsPermissions", back_populates="chat", cascade="all, delete-orphan")
@@ -133,44 +137,21 @@ class Chats(Base):
 
 class AdminsPermissions(Base):
     __tablename__ = 'admins_permissions'
-    admin_id = Column(Integer, primary_key=True, index=True, unique=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    admin_id = Column(Integer, index=True)
     chat_id = Column(Integer, ForeignKey('chats.chat_id', ondelete="CASCADE"), nullable=False)
-    is_anonymous = Column(Boolean, nullable=True)
-    can_manage_chat = Column(Boolean, nullable=True)
-    can_delete_messages = Column(Boolean, nullable=True)
-    can_manage_video_chats = Column(Boolean, nullable=True)  # Groups and supergroups only
-    can_restrict_members = Column(Boolean, nullable=True)
-    can_promote_members = Column(Boolean, nullable=True)
-    can_change_info = Column(Boolean, nullable=True)
-    can_invite_users = Column(Boolean, nullable=True)
-    can_post_meSessionssages = Column(Boolean, nullable=True)  # Channels only
-    can_edit_messages = Column(Boolean, nullable=True)  # Channels only
-    can_pin_messages = Column(Boolean, nullable=True)  # Groups and supergroups only
-    can_post_stories = Column(Boolean, nullable=True)
-    can_edit_stories = Column(Boolean, nullable=True)
-    can_delete_stories = Column(Boolean, nullable=True)
-    can_manage_topics = Column(Boolean, nullable=True)  # supergroups only
-    can_manage_direct_messages = Column(Boolean, nullable=True)
+    privileges = Column(JSON, nullable=False)
 
     # Relationship with Chats
     chat = relationship("Chats", back_populates="admins_permissions")
 
-    @staticmethod
-    def _get_valid_privileges(privileges: Any) -> dict[str, Any]:
-        """Extract valid privilege attributes from a ChatPrivileges object."""
-        return {
-            k: v for k, v in vars(privileges).items()
-            if (not k.startswith('_')
-                and hasattr(AdminsPermissions, k)
-                and k not in ('admin_id', 'chat_id'))
-        }
-
     @classmethod
-    async def create(cls, chat_id: int, admin_list: list[tuple[int, Any]]) -> AccessPermission:
+    async def create(cls, client: Client, chat_id: int, admin_list: list[tuple[int, Any]]) -> AccessPermission:
         """
         Create or update admin permissions for a chat.
 
         Args:
+            client: The client to use for the request
             chat_id: The chat ID to update permissions for
             admin_list: List of (admin_id, ChatPrivileges) tuples
 
@@ -182,22 +163,21 @@ class AdminsPermissions(Base):
                 chat = await session.execute(select(Chats).filter_by(chat_id=chat_id))
                 chat = chat.scalars().first()
                 if chat is None:
-                    chat = Chats(chat_id=chat_id, chat_type="", chat_title="")
-                    session.add(chat)
-
-                # Delete old admin permissions
+                    try:
+                        chat_info = await client.get_chat(chat_id)
+                        chat = Chats(chat_id=chat_id, chat_type=chat_info.type.value, chat_title=chat_info.title)
+                        session.add(chat)
+                        await session.commit()
+                    except (RPCError, ChannelPrivate, PeerIdInvalid, ValueError):
+                        return AccessPermission.CHAT_NOT_FOUND
                 await session.execute(delete(cls).filter_by(chat_id=chat_id))
-
-                # Add new admin permissions
                 for admin_id, privileges in admin_list:
-                    priv_dict = cls._get_valid_privileges(privileges)
                     admin = cls(
                         admin_id=admin_id,
                         chat_id=chat_id,
-                        **priv_dict
+                        privileges=privileges
                     )
                     session.add(admin)
-                # Update last_admins_update
                 chat.last_admins_update = datetime.now()
                 await session.commit()
                 return True
@@ -205,13 +185,75 @@ class AdminsPermissions(Base):
                 await session.rollback()
                 logger.error(f"Error updating admin permissions: {e}")
                 raise   
-
+    
     @classmethod
-    async def is_admin(cls, chat_id: int, admin_id: int, permission_required: str) -> AccessPermission:
+    async def update_admin(cls, chat_id: int, admin_id: int, privileges: Any) -> AccessPermission:
+        """
+        Update admin permissions for a chat.
+
+        Args:
+            chat_id: The chat ID to update permissions for
+            admin_id: The admin ID to update permissions for
+            privileges: The new admin privileges
+
+        Returns:
+            AccessPermission: Status of the operation
+        """
+        async with async_session() as session:
+            try:
+                admin = await session.execute(select(cls).filter_by(chat_id=chat_id, admin_id=admin_id))
+                admin = admin.scalars().first()
+                if isinstance(privileges, ChatPrivileges):
+                    privileges = privileges.__dict__
+                elif isinstance(privileges, dict):
+                    pass
+                else:
+                    raise ValueError("Invalid privileges type")
+                if admin is None:
+                    admin = cls(chat_id=chat_id, admin_id=admin_id, privileges=privileges)
+                    session.add(admin)
+                else:
+                    admin.privileges = privileges
+                await session.commit()
+                return True
+            except Exception as e:
+                await session.rollback()
+                logger.error(f"Error updating admin permissions: {e}")
+                raise   
+    
+    @classmethod
+    async def delete_admin(cls, chat_id: int, admin_id: int) -> AccessPermission:
+        """
+        Delete admin permissions for a chat.
+
+        Args:
+            chat_id: The chat ID to delete permissions for
+            admin_id: The admin ID to delete permissions for
+
+        Returns:
+            AccessPermission: Status of the operation
+        """
+        async with async_session() as session:
+            try:
+                admin = await session.execute(select(cls).filter_by(chat_id=chat_id, admin_id=admin_id))
+                admin = admin.scalars().first()
+                if admin is None:
+                    return False
+                await session.delete(admin)
+                await session.commit()
+                return True
+            except Exception as e:
+                await session.rollback()
+                logger.error(f"Error deleting admin permissions: {e}")
+                raise   
+    
+    @classmethod
+    async def is_admin(cls, client: Client, chat_id: int, admin_id: int, permission_required: str) -> AccessPermission:
         """
         Check if a user has a specific admin permission.
 
         Args:
+            client: The Telegram client
             chat_id: The chat ID
             admin_id: The user ID to check
             permission: The permission to verify
@@ -224,12 +266,26 @@ class AdminsPermissions(Base):
                 chat = await session.execute(select(Chats).filter_by(chat_id=chat_id))
                 chat = chat.scalars().first()
                 if chat is None:
-                    Chats.create(chat_id, "", "")
-                    return AccessPermission.NEED_UPDATE
-
-                if not chat.last_admins_update or chat.last_admins_update < datetime.now() - timedelta(hours=2):
-                    return AccessPermission.NEED_UPDATE
-
+                    try:
+                        chat_info = await client.get_chat(chat_id=chat_id)
+                        chat = Chats(chat_id=chat_id, chat_type=chat_info.type.value, chat_title=chat_info.title)
+                        session.add(chat)
+                        await session.commit()
+                        await session.refresh(chat)
+                    except Exception:
+                        return AccessPermission.CHAT_NOT_FOUND
+                if not chat.is_admin:
+                    return AccessPermission.BOT_NOT_ADMIN
+                elif not chat.last_admins_update or (chat.last_admins_update < datetime.now() - timedelta(hours=24)):
+                    admin_list = [
+                        (member.user.id, member.privileges.__dict__)
+                        async for member in client.get_chat_members(
+                            chat_id=chat_id,
+                            filter=ChatMembersFilter.ADMINISTRATORS
+                        )
+                    ]
+                    await cls.create(client=client, chat_id=chat_id, admin_list=admin_list)
+                    await session.refresh(chat)
                 admin = await session.execute(select(cls).filter_by(
                     chat_id=chat_id,
                     admin_id=admin_id
@@ -238,9 +294,15 @@ class AdminsPermissions(Base):
 
                 if admin is None:
                     return AccessPermission.NOT_ADMIN
-                if not hasattr(admin, permission_required):
+                elif chat_id == admin_id:
+                    return AccessPermission.ALLOW
+                elif admin.privileges.get(permission_required) is None:
                     return AccessPermission.DENY
-                return AccessPermission.ALLOW if getattr(admin, permission_required) else AccessPermission.DENY
+                elif admin.privileges.get(permission_required):
+                    return AccessPermission.ALLOW
+                return AccessPermission.DENY
+            except (ChatInvalid, ChatAdminRequired, ChannelPrivate, PeerIdInvalid, ValueError) as e:
+                return AccessPermission.CHAT_NOT_FOUND
             except Exception as e:
                 logger.error(f"Error in is_admin for chat {chat_id}, admin {admin_id}: {e}")
                 return AccessPermission.DENY

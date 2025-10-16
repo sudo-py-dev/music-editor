@@ -96,8 +96,8 @@ class AccessPermission(Enum):
     """User is not an admin."""
     CHAT_NOT_FOUND = 4
     """Chat is not found."""
-    NEED_UPDATE = 5
-    """Chat needs update."""
+    BOT_NOT_ADMIN = 5
+    """Bot is not an admin."""
 
 
 def format_file_size(size_bytes, default="N/A"):

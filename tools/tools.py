@@ -1,8 +1,7 @@
 import re
 from pyrogram import Client
-from pyrogram.enums import ChatMembersFilter, ChatType
+from pyrogram.enums import ChatType
 from pyrogram.types import CallbackQuery, Message
-from pyrogram.errors import ChatIdInvalid, ChatAdminRequired, ChannelPrivate, PeerIdInvalid
 from database import Chats, Users, AdminsPermissions, BotSettings
 from tools.enums import AccessPermission
 from tools.enums import Messages, PrivilegesMessages
@@ -26,69 +25,6 @@ def is_valid_username(username) -> bool:
     return bool(re.match(r"^@[a-zA-Z][a-zA-Z0-9_]{3,30}[a-zA-Z0-9]$", str(username)))
 
 
-async def is_admin(
-    client: Client,
-    chat_id: int,
-    user_id: int,
-    permission_require: str = "can_restrict_members"
-) -> AccessPermission:
-    """
-    Check if a user is an admin of the group and has the required permission.
-
-    Args:
-        client: Pyrogram Client instance
-        chat_id: ID of the chat to check
-        user_id: ID of the user to check
-        permission_require: Name of the permission to check
-
-    Returns:
-        AccessPermission: The result of the permission check
-    """
-    # Chat is always admin of itself also anonymous admin
-    if user_id == chat_id:
-        return AccessPermission.ALLOW
-
-    try:
-        # First check the database
-        admin_status = await AdminsPermissions.is_admin(chat_id=chat_id,
-                                                        admin_id=user_id,
-                                                        permission_required=permission_require)
-
-        # If we need to refresh the admin list
-        if admin_status == AccessPermission.NEED_UPDATE:
-            try:
-                # Get fresh admin list from Telegram
-                admin_list = [
-                    (member.user.id, member.privileges)
-                    async for member in client.get_chat_members(
-                        chat_id=chat_id,
-                        filter=ChatMembersFilter.ADMINISTRATORS
-                    )
-                ]
-                # Update database
-                await AdminsPermissions.create(chat_id=chat_id, admin_list=admin_list)
-                # Check again after update
-                admin_status = await AdminsPermissions.is_admin(chat_id=chat_id,
-                                                                admin_id=user_id,
-                                                                permission_required=permission_require)
-                if admin_status in [AccessPermission.ALLOW, AccessPermission.DENY, AccessPermission.NOT_ADMIN]:
-                    return admin_status
-
-            except (ChatIdInvalid, ChatAdminRequired, ChannelPrivate, PeerIdInvalid) as e:
-                logger.warning(f"Failed to fetch admin list for chat {chat_id}: {e}")
-                return AccessPermission.CHAT_NOT_FOUND
-            except Exception as e:
-                logger.error(f"Unexpected error updating admin list for chat {chat_id}: {e}")
-                return AccessPermission.CHAT_NOT_FOUND
-        elif admin_status in [AccessPermission.ALLOW, AccessPermission.DENY, AccessPermission.NOT_ADMIN]:
-            return admin_status
-        else:
-            return AccessPermission.CHAT_NOT_FOUND
-    except Exception as e:
-        logger.error(f"Error in is_admin for chat {chat_id}, user {user_id}: {e}")
-        return AccessPermission.CHAT_NOT_FOUND
-
-
 def is_admin_message(permission_require="can_restrict_members"):
     """
     Check if a message or callback query is from an admin of the chat and has the required permission.
@@ -109,7 +45,7 @@ def is_admin_message(permission_require="can_restrict_members"):
             else:
                 user_id = message.from_user.id
                 chat_id = message.chat.id
-                access = await is_admin(client, chat_id, user_id, permission_require)
+                access = await AdminsPermissions.is_admin(client, chat_id, user_id, permission_require)
                 if access == AccessPermission.ALLOW:
                     return await func(client, message, *args, **kwargs)
                 elif access == AccessPermission.DENY:
@@ -117,6 +53,16 @@ def is_admin_message(permission_require="can_restrict_members"):
                     language = chat.get("language") or os.getenv("DEFAULT_LANGUAGE") or "he"
                     miss_permission = PrivilegesMessages(language=language).__getattr__(permission_require)
                     await message.reply(Messages(language=language).unauthorized_admin.format(miss_permission))
+                    return
+                elif access == AccessPermission.BOT_NOT_ADMIN:
+                    chat = await Chats.get(chat_id=chat_id)
+                    language = chat.get("language") or os.getenv("DEFAULT_LANGUAGE") or "he"
+                    await message.reply(Messages(language=language).bot_not_admin)
+                    return
+                elif access == AccessPermission.CHAT_NOT_FOUND:
+                    chat = await Chats.get(chat_id=chat_id)
+                    language = chat.get("language") or os.getenv("DEFAULT_LANGUAGE") or "he"
+                    await message.reply(Messages(language=language).chat_not_found)
                     return
                 return
         return wrapper

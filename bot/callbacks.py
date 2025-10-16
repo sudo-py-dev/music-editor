@@ -10,19 +10,6 @@ from tools.inline_keyboards import bot_settings_buttons, buttons_builder
 from tools.enums import Messages
 
 
-def _serialize_value(value):
-    """Recursively serialize values to be JSON-compatible."""
-    from datetime import datetime
-    
-    if isinstance(value, datetime):
-        return value.isoformat()
-    elif isinstance(value, dict):
-        return {k: _serialize_value(v) for k, v in value.items()}
-    elif isinstance(value, (list, tuple)):
-        return [_serialize_value(item) for item in value]
-    return value
-
-
 @owner_only
 @with_language
 async def on_callback_settings(_, query: CallbackQuery, language: str):
@@ -84,11 +71,10 @@ async def _export_data(query: CallbackQuery, messages: Messages, data_type: str)
         return
 
     await query.answer(messages.exporting_data)
-    data = _serialize_value(items)
     filename = f"{data_type}_export_{datetime.now():%Y%m%d_%H%M%S}.json"
 
     with tempfile.NamedTemporaryFile("w+", encoding="utf-8", suffix=".json", delete=True) as tmp:
-        json.dump(data, tmp, ensure_ascii=False, indent=2)
+        json.dump(items, tmp, ensure_ascii=False, indent=2, default=str)
         tmp.seek(0)
         await query.message.reply_document(
             document=tmp.name,
