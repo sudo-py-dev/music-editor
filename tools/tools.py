@@ -96,7 +96,7 @@ def with_language(func):
         elif chat_type == ChatType.PRIVATE:
             user_id = msg.from_user.id
             user = await Users.get(user_id=user_id)
-            if user is None:
+            if not user:
                 await Users.create(user_id=user_id,
                              username=msg.from_user.username,
                              full_name=msg.from_user.full_name,
