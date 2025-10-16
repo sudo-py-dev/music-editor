@@ -2,22 +2,11 @@ from pyrogram import Client, filters
 from pyrogram.errors import MessageDeleteForbidden, MessageIdInvalid, MessageNotModified
 from pyrogram.handlers import MessageHandler
 from pyrogram.types import Message
-from pyrogram.enums import MessageServiceType
-from database import Chats, AudioFiles, Users
+from database import AudioFiles, Users
 from tools.inline_keyboards import audio_edit_buttons
 from tools.tools import with_language
 from tools.enums import Messages, create_message_audio
 from tools.audio_utils import parse_cut_range, validate_audio_filename
-
-
-async def service_message_handler(_, message: Message):
-    if message.service == MessageServiceType.NEW_CHAT_TITLE:
-        chat_id = message.chat.id
-        new_title = message.new_chat_title
-        chat_type = message.chat.type.value
-        await Chats.update(chat_id=chat_id,
-                     chat_type=chat_type,
-                     chat_title=new_title)
 
 
 @with_language
@@ -188,6 +177,5 @@ async def audio_message_handler(_, message: Message, language: str):
     await message.reply(message_audio, reply_markup=keyboard)
 
 
-message_handlers = [MessageHandler(service_message_handler, filters.service),
-                    MessageHandler(audio_message_handler, (filters.private & (filters.audio | filters.document | filters.voice))),
+message_handlers = [MessageHandler(audio_message_handler, (filters.private & (filters.audio | filters.document | filters.voice))),
                     MessageHandler(private_message_handler, (filters.private & (filters.text | filters.photo)))]

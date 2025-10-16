@@ -43,12 +43,8 @@ async def change_language_handler(_, message: Message, language: str):
         await message.reply(Messages(language=language).select_language, reply_markup=select_language_buttons())
 
 
-# Add more commands handlers here
-
-
 commands_handlers = [
     MessageHandler(start_handler, filters.command("start") & filters.private),
     MessageHandler(help_handler, filters.command("help") & filters.private),
-    MessageHandler(change_language_handler, filters.command("lang") & (filters.private | filters.group))
-    # Add the commands functions with the filters here
+    MessageHandler(change_language_handler, filters.command("lang") & filters.private)
 ]
