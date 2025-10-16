@@ -6,3 +6,4 @@ tgcrypto
 rich
 tzdata
 Pillow
+python-dateutil

@@ -1,7 +1,7 @@
 import os
 from pyrogram.errors import MessageDeleteForbidden
 from pyrogram.types import CallbackQuery
-from tools.audio_utils import cut_audio
+from tools.audio_utils import process_audio
 from tools.enums import Messages, create_message_audio
 from pyrogram.handlers import CallbackQueryHandler
 from pyrogram import filters, Client
@@ -91,6 +91,7 @@ async def audio_edit_handler(client: Client, callback_query: CallbackQuery, lang
             artist = audio.get("artist")
             cut_start = audio.get("cut_start")
             cut_end = audio.get("cut_end")
+            file_date = audio.get("file_date")
             input_file = await client.download_media(file_id)
             image_file = None
             if image_id:
@@ -106,13 +107,14 @@ async def audio_edit_handler(client: Client, callback_query: CallbackQuery, lang
             try:
                 file_ext = os.path.splitext(file_name)[1].lower() or ".mp3"
                 output_file = os.path.join(temp_dir, f"edited_{audio_id}{file_ext}")
-                success, result = cut_audio(
+                success, result = process_audio(
                     input_path=input_file,
                     output_path=output_file,
                     start_time=cut_start,
                     end_time=cut_end,
                     language=language,
                     title=title,
+                    file_date=file_date,
                     genre=genre,
                     album=album,
                     artist=artist

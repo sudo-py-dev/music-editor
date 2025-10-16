@@ -3,7 +3,7 @@ Enhanced logging configuration for the Telegram Bot with Rich formatting.
 
 Features:
 - Colorful console output with emojis
-- File rotation with timestamps
+- Size-based file rotation
 - Custom log levels (SUCCESS)
 - Contextual logging
 - Performance optimizations
@@ -13,7 +13,7 @@ import logging
 import os
 import sys
 from datetime import datetime
-from logging.handlers import TimedRotatingFileHandler
+from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Any, ClassVar, Dict, Optional, Union
 
@@ -169,13 +169,12 @@ def setup_logger(
     # Ensure log directory exists
     log_file.parent.mkdir(parents=True, exist_ok=True)
     
-    file_handler = TimedRotatingFileHandler(
+    # File handler with size-based rotation
+    file_handler = RotatingFileHandler(
         log_file,
-        when='midnight',
-        interval=1,
-        backupCount=7,  # Keep logs for 7 days
-        encoding='utf-8',
-        delay=False
+        maxBytes=10*1024*1024,  # 10MB per file
+        backupCount=7,  # Keep up to 7 rotated files
+        encoding='utf-8'
     )
     file_handler.setLevel(log_level)
     file_handler.setFormatter(file_formatter)

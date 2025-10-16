@@ -4,9 +4,10 @@ from pyrogram.handlers import MessageHandler
 from pyrogram.types import Message
 from database import AudioFiles, Users
 from tools.inline_keyboards import audio_edit_buttons
-from tools.tools import with_language
+from tools.tools import parse_date, with_language
 from tools.enums import Messages, create_message_audio
 from tools.audio_utils import parse_cut_range, validate_audio_filename
+import os
 
 
 @with_language
@@ -112,6 +113,20 @@ async def private_message_handler(client: Client, message: Message, language: st
             audio_file = await AudioFiles.update(user_id=user_id,
                                                audio_id=audio_id,
                                                title=title)
+        elif wait_for == "date":
+            if not message.text:
+                await message.reply(messages.waiting_for_date)
+                await message.delete()
+                return
+            date = message.text.strip()
+            date = parse_date(date)
+            if not date:
+                await message.reply(messages.error_date_invalid)
+                await message.delete()
+                return
+            audio_file = await AudioFiles.update(user_id=user_id,
+                                               audio_id=audio_id,
+                                               file_date=date)
         else:
             await message.reply(messages.invalid_action)
             await message.delete()
@@ -164,6 +179,9 @@ async def audio_message_handler(_, message: Message, language: str):
         mime_type = message.voice.mime_type
     else:
         await message.reply(messages.send_audio)
+        return
+    if file_size > os.getenv("MAX_AUDIO_SIZE", 40) * 1024 * 1024:
+        await message.reply(messages.error_audio_too_large.format(os.getenv("MAX_AUDIO_SIZE")))
         return
     audio_file = await AudioFiles.create(user_id=user_id,
                                          file_id=file_id,

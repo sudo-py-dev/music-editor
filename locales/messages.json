@@ -47,6 +47,7 @@
         "unbanid_chat_not_banned": "❌ הקבוצה כבר שוחררה",
         "unbanid_user_not_banned": "❌ המשתמש כבר שוחרר",
         "cut_button": "✂️ חיתוך",
+        "date_button": "📅 תאריך",
         "cancel": "❌ ביטול",
         "image_button": "📸 תמונה",
         "merge_button": "🔄 מיזוג",
@@ -88,7 +89,9 @@
         "error_invalid_character": "❗ שם הקובץ מכיל תווים לא חוקיים",
         "error_empty_filename": "📄 שם הקובץ ריק — אנא הזן שם תקין",
         "empty_cut": "❌ טווח חיתוך ריק",
-        "invalid_cut_range": "❌ טווח חיתוך לא תקין {}"
+        "invalid_cut_range": "❌ טווח חיתוך לא תקין {}",
+        "error_audio_too_large": "🎧 קובץ אודיו גדול מדי (מקסימום {} מ\"ב).",
+        "error_date_invalid": "❌ תאריך לא תקין\n\nאנא הזן תאריך תקין בפורמט: YYYY-MM-DD"
     },
 
     "en": {
@@ -102,6 +105,7 @@
             "lang": "Change language"
         },
         "help": "🆘 <b>Help Menu</b>\n{}",
+
         "select_language": "🌐 <b>Select Language</b>\nPlease choose your preferred language for this bot.\n\n<i>בחר את השפה שלך למטה.</i>",
         "select_language_groups": "🌍 Please select a language for this group.\nSupported languages: {}",
         "language_set": "✅ <b>Your language has been set to:</b> {}",
@@ -139,6 +143,7 @@
         "unbanid_chat_not_banned": "❌ The chat is not banned",
         "unbanid_user_not_banned": "❌ The user is not banned",
         "cut_button": "✂️ Cut",
+        "date_button": "📅 Date",
         "cancel": "❌ Cancel",
         "image_button": "📸 Image",
         "merge_button": "🔄 Merge",
@@ -180,7 +185,9 @@
         "error_invalid_character": "❗ File name contains invalid characters",
         "error_empty_filename": "📄 Empty file name — please provide a valid one",
         "empty_cut": "❌ Empty cut range",
-        "invalid_cut_range": "❌ Invalid cut range {}"
+        "invalid_cut_range": "❌ Invalid cut range {}",
+        "error_audio_too_large": "🎧 Audio file too large (max {}MB).",
+        "error_date_invalid": "❌ Invalid date format\n\nPlease provide a valid date in the format: YYYY-MM-DD"
     },
 
     "fr": {
@@ -231,6 +238,7 @@
         "unbanid_chat_not_banned": "❌ Le chat n'est pas banni",
         "unbanid_user_not_banned": "❌ L'utilisateur n'est pas banni",
         "cut_button": "✂️ Couper",
+        "date_button": "📅 Date",
         "cancel": "❌ Annuler",
         "image_button": "📸 Image",
         "merge_button": "🔄 Fusionner",
@@ -272,6 +280,8 @@
         "error_invalid_character": "❗ Le nom du fichier contient des caractères non valides",
         "error_empty_filename": "📄 Nom de fichier vide — veuillez en fournir un valide",
         "empty_cut": "❌ Plage de découpe vide",
-        "invalid_cut_range": "❌ Plage de découpe invalide {}"
+        "invalid_cut_range": "❌ Plage de découpe invalide {}",
+        "error_audio_too_large": "🎧 Fichier audio trop volumineux (max {} Mo).",
+        "error_date_invalid": "❌ Format de date invalide\n\nVeuillez fournir une date valide au format: YYYY-MM-DD"
     }
 }

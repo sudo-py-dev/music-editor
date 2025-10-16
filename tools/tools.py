@@ -1,4 +1,6 @@
+import datetime
 import re
+from dateutil import parser as date_parser
 from pyrogram import Client
 from pyrogram.enums import ChatType
 from pyrogram.types import CallbackQuery, Message
@@ -197,3 +199,11 @@ def wait_input_filter(wait_input: str) -> Filter:
             return user.get("wait_input") == wait_input
         return False
     return create(func=func, name=f"WaitInput_{wait_input}")
+
+
+def parse_date(date: str) -> Union[datetime, None]:
+    try:
+        parsed = date_parser.parse(date)
+        return parsed
+    except (ValueError, TypeError):
+        return None

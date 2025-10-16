@@ -80,7 +80,8 @@ def audio_edit_buttons(language: str, audio_id: int):
             InlineKeyboardButton(messages.title_button, callback_data=f"title:{audio_id}")
         ],
         [
-            InlineKeyboardButton(messages.genre_button, callback_data=f"genre:{audio_id}")
+            InlineKeyboardButton(messages.genre_button, callback_data=f"genre:{audio_id}"),
+            InlineKeyboardButton(messages.date_button, callback_data=f"date:{audio_id}")
         ],
         [
             InlineKeyboardButton(messages.album_button, callback_data=f"album:{audio_id}"),
