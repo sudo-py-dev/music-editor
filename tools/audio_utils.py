@@ -135,17 +135,14 @@ def cut_audio(
         # --- Validation ---
         if start_time < 0 or end_time < 0:
             error_msg = msg.error_negative_time
-            logger.error(error_msg)
             return False, error_msg
 
         if start_time >= end_time:
             error_msg = msg.error_invalid_order
-            logger.error(error_msg)
             return False, error_msg
 
         if start_time > duration_s:
             error_msg = msg.error_start_beyond_length
-            logger.error(error_msg)
             return False, error_msg
 
         if end_time > duration_s:

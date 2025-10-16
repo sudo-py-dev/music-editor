@@ -119,7 +119,7 @@ async def audio_edit_handler(client: Client, callback_query: CallbackQuery, lang
                 )
                 
                 if not success:
-                    await callback_query.answer(result, show_alert=True)
+                    await callback_query.message.reply(result)
                     return
                 
                 with open(output_file, 'rb') as audio_file:
