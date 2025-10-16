@@ -38,7 +38,7 @@ async def private_message_handler(client: Client, message: Message, language: st
                                                cut_end=end_time)
         elif wait_for == "name":
             if not message.text:
-                await message.reply(messages.wait_for_name)
+                await message.reply(messages.waiting_for_name)
                 await message.delete()
                 return
             name = message.text.strip()
@@ -52,7 +52,7 @@ async def private_message_handler(client: Client, message: Message, language: st
                                            file_name=sanitized_name)
         elif wait_for == "image":
             if not message.photo or not message.photo.sizes:
-                await message.reply(messages.wait_for_image)
+                await message.reply(messages.waiting_for_image)
                 await message.delete()
                 return
             elif message.photo.sizes[-1].file_size > 5 * 1024 * 1024:
@@ -65,7 +65,7 @@ async def private_message_handler(client: Client, message: Message, language: st
                                                image_id=image_id)
         elif wait_for == "genre":
             if not message.text:
-                await message.reply(messages.wait_for_genre)
+                await message.reply(messages.waiting_for_genre)
                 return
             
             genre = message.text.strip()
@@ -77,7 +77,7 @@ async def private_message_handler(client: Client, message: Message, language: st
                                            genre=genre)
         elif wait_for == "artist":
             if not message.text:
-                await message.reply(messages.wait_for_artist)
+                await message.reply(messages.waiting_for_artist)
                 return
             artist = message.text.strip()
             if len(artist) > max_length:
@@ -88,7 +88,7 @@ async def private_message_handler(client: Client, message: Message, language: st
                                                artist=artist)
         elif wait_for == "album":
             if not message.text:
-                await message.reply(messages.wait_for_album)
+                await message.reply(messages.waiting_for_album)
                 await message.delete()
                 return
             album = message.text.strip()
@@ -101,7 +101,7 @@ async def private_message_handler(client: Client, message: Message, language: st
                                                album=album)
         elif wait_for == "title":
             if not message.text:
-                await message.reply(messages.wait_for_title)
+                await message.reply(messages.waiting_for_title)
                 await message.delete()
                 return
             title = message.text.strip()
