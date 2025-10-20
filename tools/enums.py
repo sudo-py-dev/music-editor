@@ -4,6 +4,22 @@ from tools.logger import logger
 from enum import Enum
 
 
+def format_timestamp(seconds):
+    """Convert seconds to hh:mm:ss or mm:ss format."""
+    try:
+        seconds = float(seconds)
+    except (TypeError, ValueError):
+        return "-"
+    
+    hours, remainder = divmod(int(seconds), 3600)
+    minutes, seconds = divmod(remainder, 60)
+    
+    if hours > 0:
+        return f"{hours:02}:{minutes:02}:{seconds:02}"
+    else:
+        return f"{minutes:02}:{seconds:02}"
+
+
 def load_json(file_path: str) -> dict:
     try:
         if not os.path.exists(file_path):
@@ -146,8 +162,8 @@ def create_message_audio(audio_file: dict, language: str = "he") -> str:
     album = audio_file.get("album") or messages.not_set 
     artist = audio_file.get("artist") or messages.not_set
     image = messages.was_set if audio_file.get("image_id") else messages.not_set
-    cut_start = audio_file.get("cut_start") or "-"
-    cut_end = audio_file.get("cut_end") or "-"
+    cut_start = format_timestamp(audio_file.get("cut_start"))
+    cut_end = format_timestamp(audio_file.get("cut_end"))
     return messages.audio_saved_message.format(file_name=file_name,
                                                title=title,
                                                mime_type=mime_type,
