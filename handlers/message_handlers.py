@@ -180,7 +180,7 @@ async def audio_message_handler(_, message: Message, language: str):
     else:
         await message.reply(messages.send_audio)
         return
-    if file_size > os.getenv("MAX_AUDIO_SIZE", 40) * 1024 * 1024:
+    if file_size > int(os.getenv("MAX_AUDIO_SIZE", 40)) * 1024 * 1024:
         await message.reply(messages.error_audio_too_large.format(os.getenv("MAX_AUDIO_SIZE")))
         return
     audio_file = await AudioFiles.create(user_id=user_id,
